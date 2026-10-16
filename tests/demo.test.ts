@@ -17,7 +17,7 @@ function draft(menuId = 2): OrderInput {
   const menu = initialMenu[menuId - 1];
   return { requestId: randomUUID(), customer: { ...emptyCustomer }, done: false, paid: false, received: false, items: [
     { id: randomUUID(), kind: 'PERMANENT', menuId, name: 'Ignored client name', price: 1, quantity: 2, toppings: menu.toppings, customization: { ...defaults } },
-    { id: randomUUID(), kind: 'TEMPORARY', menuId: null, name: 'Racikan Contoh', price: 27000, quantity: 1, toppings: [], customization: { ...defaults, notes: 'Potong kecil' } },
+    { id: randomUUID(), kind: 'TEMPORARY', menuId: null, name: 'Sample custom recipe', price: 27000, quantity: 1, toppings: [], customization: { ...defaults, notes: 'Potong kecil' } },
   ] };
 }
 
@@ -43,7 +43,7 @@ test('create, edit and delete retain snapshots, customizations, daily references
   assert.equal(saved.items[0].code, '2CK'); assert.equal(menuName(saved.items[0]), '1/2 CK 1/2 Keju');
   assert.equal(saved.items[1].code, 'TMP1'); assert.equal(orderNumber(saved), '#0009');
   assert.deepEqual(store.save(input), saved);
-  const menu = store.menus()[1]; store.updateMenu(menu.id, { ...menu, price: 99000, name: 'Nama Baru', available: false });
+  const menu = store.menus()[1]; store.updateMenu(menu.id, { ...menu, price: 99000, name: 'Updated menu name', available: false });
   const edited = store.save({ ...saved, items: saved.items.map(i => ({ ...i, quantity: i.quantity + 1 })) }, saved.id);
   assert.equal(edited.items[0].price, 30000); assert.equal(edited.items[0].name, menu.name);
   assert.deepEqual(edited.items[0].customization, input.items[0].customization);
@@ -110,7 +110,7 @@ test('all topping subsets preserve names, prices, menu codes and Campur rules', 
 
 test('reset restores catalog, orders and counters; corrupt or unavailable storage never silently discards data', () => {
   const { storage, store } = fixture(); store.menus(); store.save(draft());
-  const menu = store.menus()[0]; store.updateMenu(1, { ...menu, name: 'Ubah' });
+  const menu = store.menus()[0]; store.updateMenu(1, { ...menu, name: 'Updated menu' });
   store.reset(); assert.deepEqual(JSON.parse(storage.getItem(DEMO_KEY)!), sampleData(date));
   storage.setItem(DEMO_KEY, 'broken'); assert.throws(() => store.list(), /Atur Ulang Demo/); assert.equal(storage.getItem(DEMO_KEY), 'broken');
   store.reset(); assert.equal(store.menus().length, 15);
@@ -120,7 +120,7 @@ test('reset restores catalog, orders and counters; corrupt or unavailable storag
 
 test('CSV neutralizes formulas and excludes customer information; receipts share full names without generated codes', async () => {
   const { store } = fixture(), input = draft();
-  input.customer = { ...emptyCustomer, type: 'Online', name: 'Nama Rahasia Uji' };
+  input.customer = { ...emptyCustomer, type: 'Online', name: 'Private test customer' };
   input.items[0].toppings = ['C']; input.items[0].customization = { ...defaults, campur: true, pandan: true };
   const order = receiptData(store.save(input)), csv = csvOrder(order), rows = receiptRows(order);
   assert.ok(!csv.includes(input.customer.name)); assert.ok(csv.includes('2C')); assert.ok(rows.some(r => r.text.includes('Campur')));
@@ -134,3 +134,4 @@ test('CSV neutralizes formulas and excludes customer information; receipts share
   try { for (const width of ['58', '80'] as const) { assert.equal((await receiptPng(order, width)).type, 'image/png'); assert.ok(drawn.includes('TOTAL')); assert.ok(!drawn.includes(input.customer.name)); } }
   finally { if (descriptor) Object.defineProperty(globalThis, 'document', descriptor); else Reflect.deleteProperty(globalThis, 'document'); }
 });
+
