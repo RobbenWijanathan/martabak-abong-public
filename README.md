@@ -91,11 +91,17 @@ npm run test:browser
 ## Vercel deployment
 
 1. Use a dedicated repository containing only this **martabak-abong-public** folder, with Git history separate from production. Run the security scan before uploading it.
-2. Import the demo repository as a **new** Vercel project, selecting the Next.js framework and Node.js 24.
+2. Import the demo repository as a **new** Vercel project, selecting **Other** as the Framework Preset and Node.js 24. The application is built with Next.js but deployed as exported static files; `"framework": null` in `vercel.json` selects this preset.
 3. Use `npm ci` for installation, `npm run build` for the build, and `out` as the output directory (already configured in `vercel.json`).
 4. Do not add environment variables, database integrations, or production configuration. There are no migrations or login setup steps.
 5. Deploy from the dashboard when ready, check the published site, and replace the live demo URL placeholder above.
 
 The `output: 'export'` configuration produces static HTML/CSS/JS. Vercel security headers are defined in `vercel.json`; apply equivalent headers when using another hosting provider. The Content Security Policy allows the inline scripts required by the static Next.js bootstrap, restricts connections to the same origin, and prevents embedding. No automatic push or deployment was performed while preparing this demo.
+
+### Fixing an existing deployment
+
+If deployment fails with `out/routes-manifest.json` missing, the Next.js framework preset is treating the static export folder as its internal build directory. Use **Other** as the Framework Preset, keep the build command as `npm run build`, and keep the output directory as `out`. The committed `vercel.json` selects these settings and overrides the corresponding dashboard settings, as described in [Vercel's configuration reference](https://vercel.com/docs/project-configuration/vercel-json#framework).
+
+Commit and push the corrected configuration when ready, then deploy that new commit. Redeploying the old failed commit will use its old configuration. No database or environment variables are needed.
 
 See the [verification record](VERIFICATION.md) for completed checks and their limitations.

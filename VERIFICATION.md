@@ -44,7 +44,7 @@ Screenshots are saved in `docs/screenshots/`. The generated `test-results/browse
 - Browser tests exercise `window.print` with the system dialog replaced and check print-media visibility rules. Physical printers and thermal output have not been tested.
 - Chrome, Firefox, Safari, and physical devices have not been tested; browser verification used desktop Edge with mobile and desktop viewport sizes.
 - The initial Windows sandbox build encountered a filesystem permission restriction in a generated Next.js output directory; the build passed with normal filesystem permissions.
-- Vercel configuration is ready for the `out/` output without backend variables. Actual Vercel deployment and hosted response headers remain unverified because nothing has been deployed.
+- The first Vercel deployment attempt reported a missing `out/routes-manifest.json`. The configuration combined the Next.js preset with the static export folder. `vercel.json` now uses `"framework": null` (the Other preset) to serve `out/` as static files. A hosted deployment of this correction and its response headers remain unverified.
 
 ## Language conventions
 
@@ -55,5 +55,5 @@ After the language update, all 8 domain tests, TypeScript checking, browser-test
 ## Remaining publication steps
 
 1. Use the dedicated demo repository, uploading only files that are not ignored by Git.
-2. Import it as a new Vercel project using Node.js 24, `npm ci`, `npm run build`, output directory `out`, and no environment variables.
+2. Configure the demo Vercel project with Framework Preset **Other**, Node.js 24, `npm ci`, `npm run build`, output directory `out`, and no environment variables. `vercel.json` overrides the framework preset, build command, and output directory for the next deployment.
 3. Deploy when ready, run a smoke test at the public URL, and replace the live demo URL placeholder in the README.
