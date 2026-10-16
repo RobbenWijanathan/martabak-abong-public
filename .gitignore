@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+.vercel/
+coverage/
+*.tsbuildinfo
+test-results/
+playwright-report/
+
+# Local editor preferences and installation cache.
+.vscode/
+.npm-cache/
